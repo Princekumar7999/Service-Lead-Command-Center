@@ -1,4 +1,4 @@
-# Gushwork FollowUp (Service Lead Command Center)
+# Service Lead Command Center
 
 > **"I just want to wake up and know who I need to call today."**  
 > — Denise, Owner of PolarFlow Commercial Refrigeration Repair
@@ -30,7 +30,6 @@ A lightweight, action-first service lead and follow-up command center built for 
 9. [Local Setup Guide (Zero-Friction 60-Second Run)](#local-setup-guide-zero-friction-60-second-run)
 10. [How AI Coding Tools Were Used](#how-ai-coding-tools-were-used)
 11. [What I Would Build Next (Future Scope)](#what-i-would-build-next-future-scope)
-12. [Evaluation Demo Walkthrough Script](#evaluation-demo-walkthrough-script)
 
 ---
 
@@ -53,7 +52,7 @@ Most software vendors fail service business owners by imposing a bloated general
 Denise's business volume is 15–20 jobs a week. Her mental bandwidth is consumed dispatching 4 field technicians and handling emergencies. When asked what single screen would transform her morning, her answer was unequivocal:
 > *"Honestly? I just want to wake up and know who I need to call today. Like, these three people are waiting on a quote, this one said yes and needs scheduling, this one has not heard from us in two days. If I had that list every morning I would be happy. I do not need anything fancy."*
 
-**Gushwork FollowUp was built specifically around that 8:00 AM moment.**
+**Service Lead Command Center FollowUp was built specifically around that 8:00 AM moment.**
 
 ---
 
@@ -279,7 +278,7 @@ Open **[http://localhost:3000](http://localhost:3000)** in your browser.
 
 ## How AI Coding Tools Were Used
 
-In alignment with the Gushwork Forward Deployed Engineer ethos, AI harnesses were leveraged as an accelerator, guided by strict human architectural constraints:
+AI harnesses were leveraged as an accelerator, guided by strict human architectural constraints:
 
 1. **System Scaffolding**: Generated type-safe boilerplate, Tailwind styling tokens, and Next.js App Router structure.
 2. **Schema & Seed Design**: Generated domain-authentic refrigeration equipment data (compressors, Hoshizaki ice machines, Manitowoc harvest valves, R404A recharges).
@@ -302,28 +301,7 @@ For a production rollout with Denise, the next iterative milestones would be:
 
 ---
 
-## Evaluation Demo Walkthrough Script
-
-If evaluating this prototype in an interview:
-
-1. **0:00 — The Problem**:  
-   *"Denise has four field technicians and 15–20 incoming jobs a week across phone, text, and email. Last Friday, she lost a $2,000 freezer repair simply because she forgot to follow up before Monday. We built a system to make sure that never happens again."*
-2. **0:30 — The Morning Command Center (`/`)**:  
-   *Show the 8:00 AM greeting, the $4,850 Revenue-at-Risk metric, and the daily action list.*
-3. **1:15 — The Overdue Action Card**:  
-   *Point to ABC Restaurant ($2,000 freezer quote overdue by 1 day). Demonstrate the `[Call]` and `[Text]` action triggers.*
-4. **1:45 — One-Click 'Mark Contacted'**:  
-   *Click 'Mark Contacted', select a preset note ("Spoke with customer, waiting for sign-off"), advance the follow-up, and show the instant card update.*
-5. **2:30 — AI Text-to-Lead Ingestion (`/jobs/new?tab=ai`)**:  
-   *Click 'Sample 1' (Joe's Deli text message). Click 'Extract Lead with AI'. Demonstrate the structured card extraction and explain the 'Human-in-the-Loop' architecture.*
-6. **3:30 — Pipeline View (`/jobs`)**:  
-   *Show the 7-stage operational board and the high-level business numbers Denise's husband needs.*
-7. **4:15 — Engineering Integrity**:  
-   *Run `npm test` in the terminal to demonstrate all 15 automated test suites passing.*
-
----
 
 ## License & Author
 - **Author**: Prince Kumar ([@Princekumar7999](https://github.com/Princekumar7999))
-- **Role**: Forward Deployed Engineer (FDE) Candidate — Gushwork.ai
 - **Repository**: [https://github.com/Princekumar7999/Service-Lead-Command-Center](https://github.com/Princekumar7999/Service-Lead-Command-Center)
