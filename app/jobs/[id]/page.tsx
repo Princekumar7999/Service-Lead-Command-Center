@@ -110,6 +110,19 @@ export default function JobDetailPage() {
     }
   };
 
+  const handleSimulateOverdue = async () => {
+    try {
+      const res = await fetch(`/api/jobs/${id}/simulate-overdue`, {
+        method: 'POST',
+      });
+      if (res.ok) {
+        fetchJob();
+      }
+    } catch (err) {
+      console.error('Failed to simulate overdue:', err);
+    }
+  };
+
   if (loading) {
     return (
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-4">
@@ -259,6 +272,18 @@ export default function JobDetailPage() {
           </div>
 
           <div className="flex items-center gap-2">
+            {!isOverdue && (
+              <button
+                type="button"
+                onClick={handleSimulateOverdue}
+                title="Demo Action: Set follow-up date to 2 days ago to demonstrate overdue queue and dynamic briefing update"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-red-200 bg-red-50 px-3.5 py-1.5 text-xs font-bold text-red-700 hover:bg-red-100 hover:border-red-300 transition-colors shadow-sm"
+              >
+                <Clock className="h-3.5 w-3.5 text-red-600" />
+                <span>⚡ Simulate Overdue (Demo)</span>
+              </button>
+            )}
+
             <button
               onClick={() => setIsContactModalOpen(true)}
               className="inline-flex items-center gap-1.5 rounded-lg bg-slate-900 px-4 py-1.5 text-xs font-bold text-white shadow-sm hover:bg-slate-800 transition-colors"

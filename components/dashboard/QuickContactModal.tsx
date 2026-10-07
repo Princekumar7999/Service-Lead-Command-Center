@@ -138,7 +138,9 @@ export function QuickContactModal({ job, isOpen, onClose, onSuccess }: QuickCont
                 <option value="2">In 2 days (+2 days)</option>
                 <option value="3">In 3 days (+3 days)</option>
                 <option value="7">In 1 week (+7 days)</option>
-                <option value="0">No further follow-up</option>
+                <option value="0">No further follow-up (Resolved)</option>
+                <option value="-2">⚡ Demo: Make Overdue (-2 days)</option>
+                <option value="-1">⚡ Demo: Make Overdue (-1 day)</option>
               </select>
             </div>
 

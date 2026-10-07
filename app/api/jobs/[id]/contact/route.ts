@@ -27,7 +27,7 @@ export async function POST(
     let newFollowUpDate: Date | null = null;
     if (body.customFollowUpDate) {
       newFollowUpDate = new Date(body.customFollowUpDate);
-    } else if (nextFollowUpDays > 0) {
+    } else if (nextFollowUpDays !== 0) {
       const now = new Date();
       newFollowUpDate = new Date(now.getTime() + nextFollowUpDays * 24 * 60 * 60 * 1000);
     }

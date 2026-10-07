@@ -34,9 +34,14 @@ interface JobActionItem {
 interface TodayActionsQueueProps {
   jobs: JobActionItem[];
   onOpenContactModal: (job: JobActionItem) => void;
+  onSimulateOverdue?: (jobId: string) => void;
 }
 
-export function TodayActionsQueue({ jobs, onOpenContactModal }: TodayActionsQueueProps) {
+export function TodayActionsQueue({
+  jobs,
+  onOpenContactModal,
+  onSimulateOverdue,
+}: TodayActionsQueueProps) {
   if (jobs.length === 0) {
     return (
       <div className="rounded-xl border border-slate-200 bg-white p-12 text-center shadow-sm">
@@ -186,6 +191,18 @@ export function TodayActionsQueue({ jobs, onOpenContactModal }: TodayActionsQueu
                     <CheckCircle2 className="h-3.5 w-3.5 mr-1 text-emerald-400" />
                     <span>Mark Contacted</span>
                   </button>
+
+                  {onSimulateOverdue && !isOverdue && (
+                    <button
+                      type="button"
+                      onClick={() => onSimulateOverdue(job.id)}
+                      title="Demo Action: Set follow-up date to 2 days ago to demonstrate overdue queue and dynamic briefing update"
+                      className="inline-flex items-center justify-center h-8 px-2.5 rounded-lg border border-red-200 bg-red-50 text-[11px] font-bold text-red-700 hover:bg-red-100 hover:border-red-300 transition-colors shadow-sm"
+                    >
+                      <Clock className="h-3 w-3 mr-1 text-red-600" />
+                      <span>Simulate Overdue</span>
+                    </button>
+                  )}
 
                   <Link
                     href={`/jobs/${job.id}`}
