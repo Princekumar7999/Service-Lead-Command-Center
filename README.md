@@ -8,8 +8,8 @@ A lightweight, action-first service lead and follow-up command center built for 
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.6-blue.svg)](https://www.typescriptlang.org/)
 [![Next.js](https://img.shields.io/badge/Next.js-14.2-black.svg)](https://nextjs.org/)
 [![Prisma](https://img.shields.io/badge/Prisma-5.22-green.svg)](https://www.prisma.io/)
-[![SQLite](https://img.shields.io/badge/Database-SQLite%20Zero--Config-blue.svg)](https://www.sqlite.org/)
-[![Vitest](https://img.shields.io/badge/Tests-15%20Passed-emerald.svg)](https://vitest.dev/)
+[![Vitest](https://img.shields.io/badge/Tests-17%20Passed-emerald.svg)](https://vitest.dev/)
+[![Groq](https://img.shields.io/badge/AI-Groq%20Llama--3.3--70B-orange.svg)](https://groq.com/)
 
 ---
 
@@ -127,7 +127,8 @@ Unstructured Input (SMS/Email)          Deterministic State & Money
 | **No GPS / Technician Route Optimization** | Denise explicitly stated: *"That would be nice later but I kind of know where everyone is. The main thing is the leads and the follow ups."* Excluding routing avoided scope creep. |
 | **Zero-Config SQLite by Default** | Evaluators should be able to run `npm install && npm run dev` immediately without needing a local PostgreSQL daemon or paid connection string. The Prisma schema is also 100% Postgres-compatible. |
 | **Human Confirmation for AI Intake** | Rather than silently creating database records from customer texts, the app renders a review card where Denise verifies extracted details before saving. |
-| **Integrated Fallback NLP Parser** | If an OpenAI API key is not configured in `.env`, the system automatically falls back to an intelligent local entity parser so the entire demo works flawlessly without API quotas. |
+| **Multi-Provider AI (Groq + OpenAI + Fallback)** | Supports **Groq Cloud** (`llama-3.3-70b-versatile`) for ultra-low latency inference, **OpenAI** (`gpt-4o-mini`), and an intelligent fallback parser that guarantees zero demo failures even with no API keys. |
+| **Interactive Overdue Simulation** | Includes a one-click `[⚡ Simulate Overdue (Demo)]` trigger so evaluators can test state transitions, revenue-at-risk meters, and dynamic briefing updates live. |
 
 ---
 
@@ -135,6 +136,8 @@ Unstructured Input (SMS/Email)          Deterministic State & Money
 
 ### 1. Today's Actions Queue & Revenue-at-Risk
 - **Revenue-at-Risk Meter**: Computes the dollar sum of all jobs requiring attention today (`OVERDUE` + `DUE_TODAY`). Connects software activity directly to financial outcome.
+- **Dynamic Morning Priority Briefing**: AI/state-synthesized briefing that **dynamically updates in real-time**. If Denise moves an overdue job (e.g. ABC Restaurant) forward by 2 days, the briefing immediately updates to only highlight remaining overdue customers (e.g. Metro Foods).
+- **Interactive "Simulate Overdue" Demo**: One-click action on any active job to push its follow-up 2 days into the past for instant evaluator testing.
 - **Urgency Hierarchy**:
   1. `OVERDUE + URGENT` (e.g. ABC Restaurant walk-in freezer down)
   2. `OVERDUE` (sorted by days overdue descending)
