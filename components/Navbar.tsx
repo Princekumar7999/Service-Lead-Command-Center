@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { PhoneCall, Plus, Sparkles, LayoutDashboard, Kanbans, Wrench } from 'lucide-react';
+import { PhoneCall, Plus, Sparkles, LayoutDashboard, Kanban, Wrench } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export function Navbar() {
@@ -18,7 +18,7 @@ export function Navbar() {
     {
       name: 'Job Pipeline',
       href: '/jobs',
-      icon: Kanbans,
+      icon: Kanban,
       active: pathname === '/jobs',
     },
   ];
