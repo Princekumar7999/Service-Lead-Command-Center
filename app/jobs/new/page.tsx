@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import {
@@ -22,7 +22,7 @@ import {
 import { PriorityBadge } from '@/components/ui/Badges';
 import { JOB_STATUSES, JOB_PRIORITIES, LEAD_SOURCES } from '@/lib/validation';
 
-export default function NewJobPage() {
+function NewJobContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const initialTab = searchParams.get('tab') === 'ai' ? 'ai' : 'manual';
@@ -528,5 +528,20 @@ export default function NewJobPage() {
         </div>
       </form>
     </div>
+  );
+}
+
+export default function NewJobPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="max-w-4xl mx-auto p-12 text-center text-slate-500">
+          <div className="inline-block h-6 w-6 animate-spin rounded-full border-2 border-blue-600 border-t-transparent mb-2" />
+          <p className="text-xs font-semibold text-slate-600">Loading job intake form...</p>
+        </div>
+      }
+    >
+      <NewJobContent />
+    </Suspense>
   );
 }
