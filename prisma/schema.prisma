@@ -1,0 +1,48 @@
+// Prisma schema for Gushwork FollowUp (Service Lead Command Center)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Customer {
+  id        String   @id @default(cuid())
+  name      String
+  company   String
+  phone     String
+  email     String?
+  address   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  jobs      Job[]
+}
+
+model Job {
+  id                 String     @id @default(cuid())
+  customerId         String
+  customer           Customer   @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  title              String
+  description        String
+  status             String     @default("NEW") // NEW, NEEDS_QUOTE, QUOTE_SENT, WAITING_ON_YES, SCHEDULED, COMPLETED, LOST
+  priority           String     @default("HIGH") // LOW, MEDIUM, HIGH, URGENT
+  estimatedValue     Float      @default(0)
+  source             String     @default("PHONE") // PHONE, WEBSITE, TEXT, REFERRAL, REPEAT
+  nextFollowUpAt     DateTime?
+  assignedTechnician String?
+  createdAt          DateTime   @default(now())
+  updatedAt          DateTime   @updatedAt
+  activities         Activity[]
+}
+
+model Activity {
+  id          String   @id @default(cuid())
+  jobId       String
+  job         Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  type        String // LEAD_CREATED, QUOTE_SENT, CUSTOMER_CONTACTED, STATUS_CHANGED, NOTE, FOLLOW_UP_COMPLETED
+  description String
+  createdAt   DateTime @default(now())
+}
