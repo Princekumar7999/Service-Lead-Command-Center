@@ -134,4 +134,29 @@ describe('Follow-up Urgency Engine', () => {
     // Upcoming should be last
     expect(sorted[4].id).toBe('upcoming-urgent');
   });
+
+  it('correctly transitions an upcoming job to OVERDUE when simulated 2 days in the past', () => {
+    const futureDate = new Date(refDate.getTime() + 2 * 24 * 60 * 60 * 1000);
+    const initialAnalysis = getFollowUpAnalysis(futureDate, 'QUOTE_SENT', refDate);
+    expect(initialAnalysis.urgency).toBe('UPCOMING');
+
+    // Simulate 2 days ago
+    const simulatedPastDate = new Date(refDate.getTime() - 2 * 24 * 60 * 60 * 1000);
+    const simulatedAnalysis = getFollowUpAnalysis(simulatedPastDate, 'QUOTE_SENT', refDate);
+    expect(simulatedAnalysis.urgency).toBe('OVERDUE');
+    expect(simulatedAnalysis.daysDiff).toBe(-2);
+    expect(isActionRequiredToday(simulatedAnalysis.urgency)).toBe(true);
+  });
+
+  it('correctly removes a job from the overdue set when follow-up is rescheduled to future', () => {
+    const overdueDate = new Date(refDate.getTime() - 2 * 24 * 60 * 60 * 1000);
+    const initialAnalysis = getFollowUpAnalysis(overdueDate, 'QUOTE_SENT', refDate);
+    expect(initialAnalysis.urgency).toBe('OVERDUE');
+
+    // User contacts customer and reschedules +2 days
+    const rescheduledDate = new Date(refDate.getTime() + 2 * 24 * 60 * 60 * 1000);
+    const updatedAnalysis = getFollowUpAnalysis(rescheduledDate, 'WAITING_ON_YES', refDate);
+    expect(updatedAnalysis.urgency).toBe('UPCOMING');
+    expect(isActionRequiredToday(updatedAnalysis.urgency)).toBe(false);
+  });
 });
