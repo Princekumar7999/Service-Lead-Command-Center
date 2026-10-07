@@ -7,6 +7,7 @@ import { MorningHeader } from '@/components/dashboard/MorningHeader';
 import { MetricsBar } from '@/components/dashboard/MetricsBar';
 import { TodayActionsQueue } from '@/components/dashboard/TodayActionsQueue';
 import { QuickContactModal } from '@/components/dashboard/QuickContactModal';
+import { DeleteConfirmModal } from '@/components/ui/DeleteConfirmModal';
 
 export default function DashboardPage() {
   const [data, setData] = useState<any>(null);
@@ -15,6 +16,8 @@ export default function DashboardPage() {
   const [filter, setFilter] = useState('actionable'); // actionable (default), overdue, today, upcoming, all
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedJobForContact, setSelectedJobForContact] = useState<any>(null);
+  const [jobToDelete, setJobToDelete] = useState<any | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const fetchJobs = useCallback(async () => {
     try {
@@ -61,6 +64,23 @@ export default function DashboardPage() {
       }
     } catch (err) {
       console.error('Failed to simulate overdue:', err);
+    }
+  };
+
+  const handleDeleteJob = async () => {
+    if (!jobToDelete) return;
+    try {
+      setDeleting(true);
+      const res = await fetch(`/api/jobs/${jobToDelete.id}`, {
+        method: 'DELETE',
+      });
+      if (!res.ok) throw new Error('Failed to delete job');
+      setJobToDelete(null);
+      await fetchJobs();
+    } catch (err: any) {
+      alert(err.message || 'Error deleting job');
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -155,6 +175,7 @@ export default function DashboardPage() {
           jobs={data?.jobs || []}
           onOpenContactModal={(job) => setSelectedJobForContact(job)}
           onSimulateOverdue={handleSimulateOverdue}
+          onDeleteJob={(job) => setJobToDelete(job)}
         />
       )}
 
@@ -166,6 +187,16 @@ export default function DashboardPage() {
         onSuccess={() => {
           fetchJobs();
         }}
+      />
+
+      {/* 8. Delete Confirmation Modal */}
+      <DeleteConfirmModal
+        isOpen={!!jobToDelete}
+        itemTitle={jobToDelete?.title || ''}
+        companyName={jobToDelete?.customer?.company}
+        loading={deleting}
+        onClose={() => setJobToDelete(null)}
+        onConfirm={handleDeleteJob}
       />
     </div>
   );

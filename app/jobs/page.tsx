@@ -14,8 +14,10 @@ import {
   AlertTriangle,
   CheckCircle2,
   XCircle,
+  Trash2,
 } from 'lucide-react';
 import { StatusBadge, PriorityBadge } from '@/components/ui/Badges';
+import { DeleteConfirmModal } from '@/components/ui/DeleteConfirmModal';
 import { formatCurrency, formatDate } from '@/lib/utils';
 import { JOB_STATUSES } from '@/lib/validation';
 
@@ -24,6 +26,8 @@ export default function PipelinePage() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [updatingJobId, setUpdatingJobId] = useState<string | null>(null);
+  const [jobToDelete, setJobToDelete] = useState<any | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const fetchJobs = useCallback(async () => {
     try {
@@ -57,6 +61,23 @@ export default function PipelinePage() {
       console.error('Failed to change status:', err);
     } finally {
       setUpdatingJobId(null);
+    }
+  };
+
+  const handleDeleteJob = async () => {
+    if (!jobToDelete) return;
+    try {
+      setDeleting(true);
+      const res = await fetch(`/api/jobs/${jobToDelete.id}`, {
+        method: 'DELETE',
+      });
+      if (!res.ok) throw new Error('Failed to delete job');
+      setJobToDelete(null);
+      await fetchJobs();
+    } catch (err: any) {
+      alert(err.message || 'Error deleting job');
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -304,10 +325,20 @@ export default function PipelinePage() {
 
                           <Link
                             href={`/jobs/${job.id}`}
-                            className="flex h-6 w-6 shrink-0 items-center justify-center rounded border border-slate-200 text-slate-500 hover:text-slate-900 hover:bg-slate-100"
+                            title="View Job Details"
+                            className="flex h-6 w-6 shrink-0 items-center justify-center rounded border border-slate-200 text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors"
                           >
                             <ArrowUpRight className="h-3 w-3" />
                           </Link>
+
+                          <button
+                            type="button"
+                            onClick={() => setJobToDelete(job)}
+                            title="Delete Project"
+                            className="flex h-6 w-6 shrink-0 items-center justify-center rounded border border-rose-200 text-rose-500 hover:text-rose-700 hover:bg-rose-50 transition-colors"
+                          >
+                            <Trash2 className="h-3 w-3" />
+                          </button>
                         </div>
                       </div>
                     );
@@ -318,6 +349,16 @@ export default function PipelinePage() {
           );
         })}
       </div>
+
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmModal
+        isOpen={!!jobToDelete}
+        itemTitle={jobToDelete?.title || ''}
+        companyName={jobToDelete?.customer?.company}
+        loading={deleting}
+        onClose={() => setJobToDelete(null)}
+        onConfirm={handleDeleteJob}
+      />
     </div>
   );
 }

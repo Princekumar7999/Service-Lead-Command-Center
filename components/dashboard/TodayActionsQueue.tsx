@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Phone, MessageSquare, ArrowUpRight, CheckCircle2, Clock, User, Building, AlertCircle } from 'lucide-react';
+import { Phone, MessageSquare, ArrowUpRight, CheckCircle2, Clock, User, Building, AlertCircle, Trash2 } from 'lucide-react';
 import { StatusBadge, PriorityBadge } from '@/components/ui/Badges';
 import { formatCurrency, formatDate } from '@/lib/utils';
 
@@ -35,12 +35,14 @@ interface TodayActionsQueueProps {
   jobs: JobActionItem[];
   onOpenContactModal: (job: JobActionItem) => void;
   onSimulateOverdue?: (jobId: string) => void;
+  onDeleteJob?: (job: JobActionItem) => void;
 }
 
 export function TodayActionsQueue({
   jobs,
   onOpenContactModal,
   onSimulateOverdue,
+  onDeleteJob,
 }: TodayActionsQueueProps) {
   if (jobs.length === 0) {
     return (
@@ -211,6 +213,17 @@ export function TodayActionsQueue({
                   >
                     <ArrowUpRight className="h-4 w-4" />
                   </Link>
+
+                  {onDeleteJob && (
+                    <button
+                      type="button"
+                      onClick={() => onDeleteJob(job)}
+                      title="Delete this service project"
+                      className="inline-flex items-center justify-center h-8 w-8 rounded-lg border border-rose-200 bg-rose-50 text-rose-600 hover:bg-rose-100 hover:border-rose-300 transition-colors shadow-sm"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                  )}
                 </div>
               </div>
             </div>

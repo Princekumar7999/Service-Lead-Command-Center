@@ -21,9 +21,11 @@ import {
   DollarSign,
   AlertCircle,
   FileEdit,
+  Trash2,
 } from 'lucide-react';
 import { StatusBadge, PriorityBadge } from '@/components/ui/Badges';
 import { QuickContactModal } from '@/components/dashboard/QuickContactModal';
+import { DeleteConfirmModal } from '@/components/ui/DeleteConfirmModal';
 import { formatCurrency, formatDate } from '@/lib/utils';
 import { JOB_STATUSES, JOB_PRIORITIES } from '@/lib/validation';
 
@@ -45,6 +47,24 @@ export default function JobDetailPage() {
   const [editingStatus, setEditingStatus] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState('');
   const [updatingStatus, setUpdatingStatus] = useState(false);
+
+  // Delete modal state
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
+  const handleDeleteJob = async () => {
+    try {
+      setDeleting(true);
+      const res = await fetch(`/api/jobs/${id}`, {
+        method: 'DELETE',
+      });
+      if (!res.ok) throw new Error('Failed to delete job');
+      router.push('/');
+    } catch (err: any) {
+      alert(err.message || 'Error deleting job');
+      setDeleting(false);
+    }
+  };
 
   const fetchJob = useCallback(async () => {
     try {
@@ -291,6 +311,16 @@ export default function JobDetailPage() {
               <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />
               <span>Mark Contacted</span>
             </button>
+
+            <button
+              type="button"
+              onClick={() => setIsDeleteDialogOpen(true)}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-rose-200 bg-rose-50/70 px-3 py-1.5 text-xs font-bold text-rose-700 hover:bg-rose-100 hover:border-rose-300 transition-colors shadow-sm"
+              title="Delete this service project"
+            >
+              <Trash2 className="h-3.5 w-3.5 text-rose-600" />
+              <span>Delete Project</span>
+            </button>
           </div>
         </div>
 
@@ -461,6 +491,16 @@ export default function JobDetailPage() {
         isOpen={isContactModalOpen}
         onClose={() => setIsContactModalOpen(false)}
         onSuccess={() => fetchJob()}
+      />
+
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmModal
+        isOpen={isDeleteDialogOpen}
+        itemTitle={job.title}
+        companyName={job.customer.company}
+        loading={deleting}
+        onClose={() => setIsDeleteDialogOpen(false)}
+        onConfirm={handleDeleteJob}
       />
     </div>
   );

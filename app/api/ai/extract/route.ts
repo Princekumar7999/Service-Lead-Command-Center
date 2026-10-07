@@ -42,7 +42,7 @@ Return ONLY pure JSON.`;
             Authorization: `Bearer ${groqApiKey}`,
           },
           body: JSON.stringify({
-            model: 'llama-3.3-70b-versatile',
+            model: 'openai/gpt-oss-120b',
             messages: [
               { role: 'system', content: systemPrompt },
               { role: 'user', content: message },
@@ -61,7 +61,7 @@ Return ONLY pure JSON.`;
           return NextResponse.json({
             success: true,
             extracted: validated,
-            mode: 'groq-llama-3.3-70b',
+            mode: 'openai/gpt-oss-120b',
             provider: 'Groq Cloud',
           });
         } else {
