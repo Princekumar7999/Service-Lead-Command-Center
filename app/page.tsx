@@ -51,6 +51,19 @@ export default function DashboardPage() {
 
   const displayedJobs = data?.jobs || [];
 
+  const handleSimulateOverdue = async (jobId: string) => {
+    try {
+      const res = await fetch(`/api/jobs/${jobId}/simulate-overdue`, {
+        method: 'POST',
+      });
+      if (res.ok) {
+        await fetchJobs();
+      }
+    } catch (err) {
+      console.error('Failed to simulate overdue:', err);
+    }
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6 sm:space-y-8">
       {/* 1. Denise's 8:00 AM Greeting & Revenue-at-Risk */}
@@ -59,6 +72,8 @@ export default function DashboardPage() {
         overdueCount={metrics.overdueCount}
         dueTodayCount={metrics.dueTodayCount}
         potentialRevenue={metrics.potentialRevenue}
+        overdueJobs={metrics.overdueJobs || []}
+        dueTodayJobs={metrics.dueTodayJobs || []}
       />
 
       {/* 2. Interactive Urgency Counters (Overdue / Due Today / Upcoming / All) */}
@@ -137,8 +152,9 @@ export default function DashboardPage() {
       {/* 6. Main Action List */}
       {!loading && (
         <TodayActionsQueue
-          jobs={displayedJobs}
+          jobs={data?.jobs || []}
           onOpenContactModal={(job) => setSelectedJobForContact(job)}
+          onSimulateOverdue={handleSimulateOverdue}
         />
       )}
 

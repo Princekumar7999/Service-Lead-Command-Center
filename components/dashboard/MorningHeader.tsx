@@ -1,13 +1,23 @@
 'use client';
 
 import { Sparkles, Calendar, AlertCircle } from 'lucide-react';
-import { formatDateOnly } from '@/lib/utils';
+import { formatDateOnly, formatCurrency } from '@/lib/utils';
+
+export interface JobSummary {
+  id: string;
+  company: string;
+  title: string;
+  estimatedValue: number;
+  daysDiff?: number;
+}
 
 interface MorningHeaderProps {
   attentionCount: number;
   overdueCount: number;
   dueTodayCount: number;
   potentialRevenue: number;
+  overdueJobs?: JobSummary[];
+  dueTodayJobs?: JobSummary[];
 }
 
 export function MorningHeader({
@@ -15,8 +25,62 @@ export function MorningHeader({
   overdueCount,
   dueTodayCount,
   potentialRevenue,
+  overdueJobs = [],
+  dueTodayJobs = [],
 }: MorningHeaderProps) {
   const today = new Date();
+
+  // Dynamically compute the priority briefing text based on real-time active jobs
+  const renderBriefingContent = () => {
+    if (overdueCount > 0 && overdueJobs.length > 0) {
+      const topOverdue = overdueJobs.slice(0, 2);
+      const remainingCount = overdueJobs.length - topOverdue.length;
+
+      let mentions = '';
+      if (topOverdue.length === 1) {
+        mentions = `${topOverdue[0].company} (${formatCurrency(topOverdue[0].estimatedValue)} quote)`;
+      } else {
+        mentions = `${topOverdue[0].company} (${formatCurrency(topOverdue[0].estimatedValue)}) and ${topOverdue[1].company} (${formatCurrency(topOverdue[1].estimatedValue)})`;
+        if (remainingCount > 0) {
+          mentions += ` and ${remainingCount} other customer${remainingCount === 1 ? '' : 's'}`;
+        }
+      }
+
+      return (
+        <>
+          You have <strong className="text-red-700">{overdueCount} overdue customer {overdueCount === 1 ? 'quote' : 'quotes'}</strong> that risk leaking to competitors. Check <strong className="text-slate-900 underline decoration-red-300">{mentions}</strong> first.
+        </>
+      );
+    }
+
+    if (dueTodayCount > 0 && dueTodayJobs.length > 0) {
+      const topDue = dueTodayJobs.slice(0, 2);
+      const remainingCount = dueTodayJobs.length - topDue.length;
+
+      let mentions = '';
+      if (topDue.length === 1) {
+        mentions = `${topDue[0].company} (${formatCurrency(topDue[0].estimatedValue)}) is awaiting your follow-up today.`;
+      } else {
+        mentions = `${topDue[0].company} (${formatCurrency(topDue[0].estimatedValue)}) and ${topDue[1].company} (${formatCurrency(topDue[1].estimatedValue)})`;
+        if (remainingCount > 0) {
+          mentions += ` plus ${remainingCount} more`;
+        }
+        mentions += ` are awaiting your follow-up today.`;
+      }
+
+      return (
+        <>
+          You have <strong className="text-amber-800">{dueTodayCount} {dueTodayCount === 1 ? 'job' : 'jobs'}</strong> scheduled for contact today. {mentions}
+        </>
+      );
+    }
+
+    return (
+      <span className="text-emerald-800 font-medium">
+        All caught up! No overdue customer quotes or pending follow-ups required right now.
+      </span>
+    );
+  };
 
   return (
     <div className="space-y-4">
@@ -67,19 +131,11 @@ export function MorningHeader({
                   Morning Priority Briefing
                 </span>
                 <span className="rounded bg-indigo-200/60 px-1.5 py-0.2 text-[10px] font-semibold text-indigo-800">
-                  AI Synthesized
+                  Live Dynamic Synthesis
                 </span>
               </div>
               <p className="text-xs sm:text-sm text-indigo-950 leading-relaxed">
-                {overdueCount > 0 ? (
-                  <>
-                    You have <strong className="text-red-700">{overdueCount} overdue customer {overdueCount === 1 ? 'quote' : 'quotes'}</strong> that risk leaking to competitors. Check ABC Restaurant ($2,000 freezer quote) and Metro Foods first.
-                  </>
-                ) : (
-                  <>
-                    You have <strong className="text-amber-800">{dueTodayCount} jobs</strong> scheduled for contact today. Burger House is awaiting a compressor quote before their weekend rush.
-                  </>
-                )}
+                {renderBriefingContent()}
               </p>
             </div>
           </div>
