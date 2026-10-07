@@ -13,23 +13,10 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const apiKey = process.env.OPENAI_API_KEY;
+    const groqApiKey = process.env.GROQ_API_KEY;
+    const openaiApiKey = process.env.OPENAI_API_KEY;
 
-    // If an OpenAI API key is provided, we can call the live LLM
-    if (apiKey && apiKey.startsWith('sk-')) {
-      try {
-        const response = await fetch('https://api.openai.com/v1/chat/completions', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${apiKey}`,
-          },
-          body: JSON.stringify({
-            model: 'gpt-4o-mini',
-            messages: [
-              {
-                role: 'system',
-                content: `You are an AI assistant for Denise, owner of PolarFlow Commercial Refrigeration repair.
+    const systemPrompt = `You are an AI assistant for Denise, owner of PolarFlow Commercial Refrigeration repair.
 Your job is to extract structured lead information from customer texts, voicemails, or emails into valid JSON matching this schema:
 {
   "customerName": string (contact person name),
@@ -43,12 +30,62 @@ Your job is to extract structured lead information from customer texts, voicemai
   "suggestedValue": number (typical commercial refrigeration job estimate between 750 and 3500),
   "suggestedFollowUpHours": number (e.g. 2 for urgent, 6 for high, 24 for medium)
 }
-Return ONLY pure JSON.`,
-              },
-              {
-                role: 'user',
-                content: message,
-              },
+Return ONLY pure JSON.`;
+
+    // 1. Try Groq API first (Llama-3.3-70B-Versatile)
+    if (groqApiKey && (groqApiKey.startsWith('gsk_') || groqApiKey.length > 20)) {
+      try {
+        const groqResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${groqApiKey}`,
+          },
+          body: JSON.stringify({
+            model: 'llama-3.3-70b-versatile',
+            messages: [
+              { role: 'system', content: systemPrompt },
+              { role: 'user', content: message },
+            ],
+            response_format: { type: 'json_object' },
+            temperature: 0.1,
+          }),
+        });
+
+        if (groqResponse.ok) {
+          const completion = await groqResponse.json();
+          const rawContent = completion.choices[0].message.content;
+          const parsedJSON = JSON.parse(rawContent);
+
+          const validated = AIExtractedLeadSchema.parse(parsedJSON);
+          return NextResponse.json({
+            success: true,
+            extracted: validated,
+            mode: 'groq-llama-3.3-70b',
+            provider: 'Groq Cloud',
+          });
+        } else {
+          console.warn('Groq API returned error status:', groqResponse.status, await groqResponse.text());
+        }
+      } catch (groqErr) {
+        console.warn('Groq API call exception, attempting fallback:', groqErr);
+      }
+    }
+
+    // 2. Try OpenAI API as secondary option if provided
+    if (openaiApiKey && openaiApiKey.startsWith('sk-')) {
+      try {
+        const response = await fetch('https://api.openai.com/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${openaiApiKey}`,
+          },
+          body: JSON.stringify({
+            model: 'gpt-4o-mini',
+            messages: [
+              { role: 'system', content: systemPrompt },
+              { role: 'user', content: message },
             ],
             response_format: { type: 'json_object' },
             temperature: 0.1,
@@ -60,16 +97,16 @@ Return ONLY pure JSON.`,
           const rawContent = completion.choices[0].message.content;
           const parsedJSON = JSON.parse(rawContent);
 
-          // Validate strictly through Zod
           const validated = AIExtractedLeadSchema.parse(parsedJSON);
           return NextResponse.json({
             success: true,
             extracted: validated,
-            mode: 'live-llm',
+            mode: 'openai-gpt-4o-mini',
+            provider: 'OpenAI',
           });
         }
       } catch (llmErr) {
-        console.warn('Live LLM call failed, falling back to deterministic extraction parser:', llmErr);
+        console.warn('Live OpenAI call failed, falling back to deterministic extraction parser:', llmErr);
       }
     }
 
@@ -81,7 +118,7 @@ Return ONLY pure JSON.`,
       success: true,
       extracted: validated,
       mode: 'deterministic-nlp-fallback',
-      notice: apiKey ? undefined : 'Processed via intelligent fallback parser (no OpenAI key required)',
+      notice: (groqApiKey || openaiApiKey) ? undefined : 'Processed via intelligent fallback parser (no Groq/OpenAI key required)',
     });
   } catch (error: any) {
     console.error('Error in AI extraction:', error);

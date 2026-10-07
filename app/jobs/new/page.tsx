@@ -34,6 +34,7 @@ function NewJobContent() {
   const [extracting, setExtracting] = useState(false);
   const [aiError, setAiError] = useState('');
   const [extractedLead, setExtractedLead] = useState<any | null>(null);
+  const [extractionMeta, setExtractionMeta] = useState<{ mode?: string; provider?: string } | null>(null);
 
   // Manual & Review Form State
   const [formData, setFormData] = useState({
@@ -94,6 +95,10 @@ function NewJobContent() {
       }
 
       setExtractedLead(data.extracted);
+      setExtractionMeta({
+        mode: data.mode,
+        provider: data.provider || (data.mode === 'deterministic-nlp-fallback' ? 'Smart NLP Engine' : 'AI Cloud'),
+      });
 
       // Pre-fill form for human confirmation
       const hours = data.extracted.suggestedFollowUpHours || 4;
@@ -275,9 +280,16 @@ function NewJobContent() {
           {/* AI Extracted Confirmation Banner */}
           {extractedLead && (
             <div className="rounded-xl border border-emerald-300 bg-emerald-50/60 p-4">
-              <div className="flex items-center gap-2 text-emerald-900 font-bold text-sm mb-1">
-                <CheckCircle2 className="h-4 w-4 text-emerald-600" />
-                <span>AI Extracted Lead Successfully — Please Review & Confirm Below</span>
+              <div className="flex flex-wrap items-center justify-between gap-2 mb-1">
+                <div className="flex items-center gap-2 text-emerald-900 font-bold text-sm">
+                  <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+                  <span>Lead Extracted Successfully — Please Review & Confirm Below</span>
+                </div>
+                {extractionMeta && (
+                  <span className="rounded-full bg-emerald-200/80 px-2.5 py-0.5 text-[11px] font-bold text-emerald-900 border border-emerald-300">
+                    Engine: {extractionMeta.provider} {extractionMeta.mode ? `(${extractionMeta.mode})` : ''}
+                  </span>
+                )}
               </div>
               <p className="text-xs text-emerald-800">
                 Check the pre-filled fields below. You can adjust the estimated value, technician, or follow-up date before saving.
