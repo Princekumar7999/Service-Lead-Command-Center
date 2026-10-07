@@ -99,9 +99,9 @@ Return ONLY pure JSON.`,
 function extractLeadDeterministically(text: string) {
   const lower = text.toLowerCase();
 
-  // Extract phone number (e.g. 555-123-4567, (555) 123-4567, 555 123 4567)
-  const phoneMatch = text.match(/(?:\+?1[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/);
-  const phone = phoneMatch ? phoneMatch[0] : '';
+  // Extract phone number (e.g. 555-0144 or 555-123-4567 or (555) 123-4567)
+  const phoneMatch = text.match(/(?:\+?1[-.\s]?)?(?:\(?\d{3}\)?[-.\s]?)?\d{3}[-.\s]?\d{4}/);
+  const phone = phoneMatch ? phoneMatch[0].trim() : '';
 
   // Extract email
   const emailMatch = text.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
@@ -109,10 +109,17 @@ function extractLeadDeterministically(text: string) {
 
   // Extract person name
   let customerName = 'Customer';
-  const nameFromMatch = text.match(/(?:this is|i'm|im|from|name is|call)\s+([A-Z][a-z]+)/i);
+  const nameFromMatch = text.match(/(?:this is|i'm|im|name is|call)\s+([A-Z][a-z]+)/i);
+  const hereFromMatch = text.match(/([A-Z][a-z]+)\s+(?:here|from)/i);
   const signoffMatch = text.match(/(?:thanks|regards|cheers|best)[,\s\n]+([A-Z][a-z]+)/i);
+  const nameWithPhoneMatch = text.match(/([A-Z][a-z]+)\s+(?:\(?\d{3}\)?[-.\s]?)?\d{3}[-.\s]?\d{4}/);
+
   if (nameFromMatch) {
     customerName = nameFromMatch[1];
+  } else if (hereFromMatch) {
+    customerName = hereFromMatch[1];
+  } else if (nameWithPhoneMatch) {
+    customerName = nameWithPhoneMatch[1];
   } else if (signoffMatch) {
     customerName = signoffMatch[1];
   }
